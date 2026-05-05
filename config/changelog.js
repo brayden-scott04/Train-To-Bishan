@@ -1,9 +1,25 @@
 ﻿window.TRAIN_TO_BISHAN_CHANGELOG = {
-  currentVersion: "manual-20260505-142230",
+  currentVersion: "manual-20260505-142627",
   entries: [
     {
-        "version":  "manual-20260505-142230",
-        "timestamp":  "2026-05-05T14:22:30+08:00",
+        "version":  "manual-20260505-142627",
+        "timestamp":  "2026-05-05T14:26:27+08:00",
+        "title":  "Show full train width on narrow screens",
+        "changes":  [
+                        "Changed the arriving MRT image to scale by full width so thin phones do not crop the sides of the train."
+                    ]
+    },
+    {
+        "version":  "8a05768",
+        "timestamp":  "2026-05-05T14:25:34+08:00",
+        "title":  "Add GitHub changelog link",
+        "changes":  [
+                        "Added a link at the top of the changelog page to the GitHub commit history."
+                    ]
+    },
+    {
+        "version":  "f93f8f6",
+        "timestamp":  "2026-05-05T14:24:14+08:00",
         "title":  "Use manual static changelog entries",
         "changes":  [
                         "Changed the changelog to use manually maintained static entries instead of calling the GitHub commits API.",
