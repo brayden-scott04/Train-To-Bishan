@@ -503,6 +503,12 @@ button {
   gap: 12px;
 }
 
+.changelog-repo-link {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
 .changelog-list {
   display: grid;
   gap: 14px;
