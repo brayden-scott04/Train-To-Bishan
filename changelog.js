@@ -73,16 +73,17 @@ function renderChangelog() {
     changelogSummaryEl.textContent =
       "Latest changes are shown below. New changes will be highlighted after your first commute in this browser.";
   } else if (lastPlayedIndex === -1) {
-    changelogSummaryEl.textContent = `Your last played version ${lastPlayedVersion} is not in this changelog, so visible changes are marked as new.`;
+    changelogSummaryEl.textContent =
+      "Your last played changelog version is not listed here, so visible changes are marked as new.";
   } else if (newEntryCount > 0) {
-    changelogSummaryEl.textContent = `${newEntryCount} new change${newEntryCount === 1 ? "" : "s"} since you last played ${lastPlayedVersion}.`;
+    changelogSummaryEl.textContent = `${newEntryCount} new change${newEntryCount === 1 ? "" : "s"} since your last commute.`;
   } else {
-    changelogSummaryEl.textContent = `You last played the latest version, ${lastPlayedVersion}. No newer changes yet.`;
+    changelogSummaryEl.textContent =
+      "You last played the latest changelog version. No newer changes yet.";
   }
 
   changelogListEl.innerHTML = entries
     .map((entry, index) => {
-      const version = getEntryVersion(entry);
       const changes = Array.isArray(entry.changes) ? entry.changes : [];
       const isNew =
         hasRecordedCommute &&
@@ -95,10 +96,10 @@ function renderChangelog() {
       return `
         <section class="changelog-entry${isNew ? " is-new" : ""}">
           <div class="changelog-entry-header">
-            <h3>${escapeHtml(entry.title ?? `Change ${version}`)}</h3>
+            <h3>${escapeHtml(entry.title ?? "Change")}</h3>
             ${isNew ? '<span class="new-pill">New</span>' : ""}
           </div>
-          <p class="changelog-meta">${escapeHtml(version)} &middot; ${escapeHtml(formatTimestamp(entry.timestamp))}</p>
+          <p class="changelog-meta">${escapeHtml(formatTimestamp(entry.timestamp))}</p>
           ${changesHtml}
         </section>
       `;

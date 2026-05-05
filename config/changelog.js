@@ -1,6 +1,15 @@
 ﻿window.TRAIN_TO_BISHAN_CHANGELOG = {
-  currentVersion: "manual-20260505-142943",
+  currentVersion: "manual-20260505-143126",
   entries: [
+    {
+        "version":  "manual-20260505-143126",
+        "timestamp":  "2026-05-05T14:31:26+08:00",
+        "title":  "Simplify changelog metadata",
+        "changes":  [
+                        "Removed commit IDs from the visible changelog entries.",
+                        "Changed changelog timestamps to normal-weight text."
+                    ]
+    },
     {
         "version":  "manual-20260505-142943",
         "timestamp":  "2026-05-05T14:29:43+08:00",
