@@ -8,11 +8,10 @@ function readChangelog() {
   const changelog = window[CHANGELOG_GLOBAL];
 
   if (!changelog || typeof changelog !== "object") {
-    return { currentVersion: "0.0.0", entries: [] };
+    return { entries: [] };
   }
 
   return {
-    currentVersion: String(changelog.currentVersion ?? "0.0.0"),
     entries: Array.isArray(changelog.entries) ? changelog.entries : [],
   };
 }
@@ -25,23 +24,6 @@ function readLastPlayedVersion() {
   }
 }
 
-function compareVersions(leftVersion, rightVersion) {
-  const leftParts = String(leftVersion).split(".").map(Number);
-  const rightParts = String(rightVersion).split(".").map(Number);
-  const partCount = Math.max(leftParts.length, rightParts.length);
-
-  for (let index = 0; index < partCount; index += 1) {
-    const leftPart = Number.isFinite(leftParts[index]) ? leftParts[index] : 0;
-    const rightPart = Number.isFinite(rightParts[index]) ? rightParts[index] : 0;
-
-    if (leftPart !== rightPart) {
-      return leftPart > rightPart ? 1 : -1;
-    }
-  }
-
-  return 0;
-}
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -50,37 +32,74 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function renderChangelog() {
-  const changelog = readChangelog();
-  const lastPlayedVersion = readLastPlayedVersion();
-  const newEntries = changelog.entries.filter((entry) =>
-    !lastPlayedVersion || compareVersions(entry.version, lastPlayedVersion) > 0,
+function formatTimestamp(timestamp) {
+  const timestampText = String(timestamp ?? "");
+  const match = timestampText.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/,
   );
 
-  if (!lastPlayedVersion) {
-    changelogSummaryEl.textContent =
-      "No previous commute has been recorded in this browser, so all changes are marked as new.";
-  } else if (newEntries.length > 0) {
-    changelogSummaryEl.textContent = `New since you last played version ${lastPlayedVersion}.`;
-  } else {
-    changelogSummaryEl.textContent = `You last played version ${lastPlayedVersion}. No newer changes yet.`;
+  if (!match) {
+    return timestampText;
   }
 
-  changelogListEl.innerHTML = changelog.entries
-    .map((entry) => {
-      const isNew = !lastPlayedVersion || compareVersions(entry.version, lastPlayedVersion) > 0;
+  return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}:${match[6]} ${match[7]}`;
+}
+
+function getEntryVersion(entry) {
+  return String(entry?.version ?? "").slice(0, 24);
+}
+
+function getLastPlayedIndex(entries, lastPlayedVersion) {
+  if (!lastPlayedVersion) {
+    return -1;
+  }
+
+  return entries.findIndex((entry) => getEntryVersion(entry) === lastPlayedVersion);
+}
+
+function renderChangelog() {
+  const { entries } = readChangelog();
+  const lastPlayedVersion = readLastPlayedVersion();
+  const lastPlayedIndex = getLastPlayedIndex(entries, lastPlayedVersion);
+  const hasRecordedCommute = Boolean(lastPlayedVersion);
+  const newEntryCount =
+    hasRecordedCommute && lastPlayedIndex > 0
+      ? lastPlayedIndex
+      : hasRecordedCommute && lastPlayedIndex === -1
+        ? entries.length
+        : 0;
+
+  if (!hasRecordedCommute) {
+    changelogSummaryEl.textContent =
+      "Latest changes are shown below. New changes will be highlighted after your first commute in this browser.";
+  } else if (lastPlayedIndex === -1) {
+    changelogSummaryEl.textContent = `Your last played version ${lastPlayedVersion} is not in this changelog, so visible changes are marked as new.`;
+  } else if (newEntryCount > 0) {
+    changelogSummaryEl.textContent = `${newEntryCount} new change${newEntryCount === 1 ? "" : "s"} since you last played ${lastPlayedVersion}.`;
+  } else {
+    changelogSummaryEl.textContent = `You last played the latest version, ${lastPlayedVersion}. No newer changes yet.`;
+  }
+
+  changelogListEl.innerHTML = entries
+    .map((entry, index) => {
+      const version = getEntryVersion(entry);
       const changes = Array.isArray(entry.changes) ? entry.changes : [];
+      const isNew =
+        hasRecordedCommute &&
+        (lastPlayedIndex === -1 || (lastPlayedIndex > -1 && index < lastPlayedIndex));
+      const changesHtml =
+        changes.length > 0
+          ? `<ul>${changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul>`
+          : "";
 
       return `
         <section class="changelog-entry${isNew ? " is-new" : ""}">
           <div class="changelog-entry-header">
-            <h3>${escapeHtml(entry.title ?? `Version ${entry.version}`)}</h3>
+            <h3>${escapeHtml(entry.title ?? `Change ${version}`)}</h3>
             ${isNew ? '<span class="new-pill">New</span>' : ""}
           </div>
-          <p class="changelog-meta">Version ${escapeHtml(entry.version)} &middot; ${escapeHtml(entry.date ?? "")}</p>
-          <ul>
-            ${changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}
-          </ul>
+          <p class="changelog-meta">${escapeHtml(version)} &middot; ${escapeHtml(formatTimestamp(entry.timestamp))}</p>
+          ${changesHtml}
         </section>
       `;
     })

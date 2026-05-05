@@ -420,24 +420,8 @@ function clearStoredGameSettings() {
 
 function getCurrentGameVersion() {
   const changelog = window[CHANGELOG_GLOBAL];
-  return String(changelog?.currentVersion ?? "0.0.0");
-}
-
-function compareVersions(leftVersion, rightVersion) {
-  const leftParts = String(leftVersion).split(".").map(Number);
-  const rightParts = String(rightVersion).split(".").map(Number);
-  const partCount = Math.max(leftParts.length, rightParts.length);
-
-  for (let index = 0; index < partCount; index += 1) {
-    const leftPart = Number.isFinite(leftParts[index]) ? leftParts[index] : 0;
-    const rightPart = Number.isFinite(rightParts[index]) ? rightParts[index] : 0;
-
-    if (leftPart !== rightPart) {
-      return leftPart > rightPart ? 1 : -1;
-    }
-  }
-
-  return 0;
+  const firstEntry = Array.isArray(changelog?.entries) ? changelog.entries[0] : null;
+  return String(changelog?.currentVersion ?? firstEntry?.version ?? "0.0.0");
 }
 
 function readLastPlayedVersion() {
@@ -459,7 +443,7 @@ function markCurrentGameVersionPlayed() {
 
 function hasNewChangelogEntries() {
   const lastPlayedVersion = readLastPlayedVersion();
-  return !lastPlayedVersion || compareVersions(getCurrentGameVersion(), lastPlayedVersion) > 0;
+  return Boolean(lastPlayedVersion) && getCurrentGameVersion() !== lastPlayedVersion;
 }
 
 function applyCurrentGameSettings() {
