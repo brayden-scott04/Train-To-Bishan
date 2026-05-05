@@ -1,6 +1,14 @@
 ﻿window.TRAIN_TO_BISHAN_CHANGELOG = {
-  currentVersion: "manual-20260505-142750",
+  currentVersion: "manual-20260505-142943",
   entries: [
+    {
+        "version":  "manual-20260505-142943",
+        "timestamp":  "2026-05-05T14:29:43+08:00",
+        "title":  "Keep train height matched to platform",
+        "changes":  [
+                        "Changed the MRT train layer to fill the platform frame in both width and height so narrow devices do not make the train appear shorter."
+                    ]
+    },
     {
         "version":  "manual-20260505-142750",
         "timestamp":  "2026-05-05T14:27:50+08:00",
