@@ -3811,7 +3811,6 @@ function resetState() {
 
 function startWaiting() {
   hideStatusText(true);
-  markCurrentGameVersionPlayed();
   clearEndSound();
   clearAuntieSound();
   clearTrainBreakdownSound();
@@ -4451,6 +4450,7 @@ function renderActions() {
 }
 
 startButtonEl.addEventListener("click", async () => {
+  markCurrentGameVersionPlayed();
   playStartSound();
   unlockAuntieSound();
   unlockTrainBreakdownSound();

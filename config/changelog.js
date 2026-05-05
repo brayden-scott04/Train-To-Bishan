@@ -1,6 +1,14 @@
 ﻿window.TRAIN_TO_BISHAN_CHANGELOG = {
-  currentVersion: "manual-20260505-142627",
+  currentVersion: "manual-20260505-142750",
   entries: [
+    {
+        "version":  "manual-20260505-142750",
+        "timestamp":  "2026-05-05T14:27:50+08:00",
+        "title":  "Track changelog version at game start",
+        "changes":  [
+                        "Changed the changelog version tracking to save immediately when Start commute is pressed."
+                    ]
+    },
     {
         "version":  "manual-20260505-142627",
         "timestamp":  "2026-05-05T14:26:27+08:00",
