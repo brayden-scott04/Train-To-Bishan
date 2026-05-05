@@ -77,9 +77,14 @@
             <span class="material-symbols-rounded" aria-hidden="true">code</span>
             View Source Code
           </a>
-          <a class="secondary icon-text-button menu-link challenge-link" href="virality.html">
-            <span class="material-symbols-rounded" aria-hidden="true">emoji_events</span>
-            Help us win the "Virality Challenge"!
+          <a
+            class="secondary icon-text-button menu-link changelog-link"
+            id="changelogLink"
+            href="changelog.html"
+          >
+            <span class="material-symbols-rounded" aria-hidden="true">history</span>
+            Changelog
+            <span class="notification-badge" id="changelogBadge" aria-label="New changes" hidden></span>
           </a>
         </div>
       </section>
@@ -504,6 +509,7 @@
     </main>
 
     <script src="config/game-config.js"></script>
+    <script src="config/changelog.js"></script>
     <script src="sounds/playlist.js"></script>
     <script src="app.js"></script>
   </body>

@@ -2,6 +2,8 @@ const CONFIG_PATH = "config/game-config.json";
 const SCRIPT_CONFIG_GLOBAL = "TRAIN_TO_BISHAN_GAME_CONFIG";
 const DEMO_SKIP_QUERY_VALUE = "true";
 const USER_SETTINGS_STORAGE_KEY = "train-to-bishan:user-settings";
+const LAST_PLAYED_VERSION_STORAGE_KEY = "train-to-bishan:last-played-version";
+const CHANGELOG_GLOBAL = "TRAIN_TO_BISHAN_CHANGELOG";
 const RANDOM_TRAIN_SOUND_MIN_GAP = 30_000;
 const MIN_TRAIN_ARRIVAL_DURATION = 10_000;
 const MIN_DURATION_BETWEEN_STATIONS = 10_000;
@@ -416,6 +418,50 @@ function clearStoredGameSettings() {
   }
 }
 
+function getCurrentGameVersion() {
+  const changelog = window[CHANGELOG_GLOBAL];
+  return String(changelog?.currentVersion ?? "0.0.0");
+}
+
+function compareVersions(leftVersion, rightVersion) {
+  const leftParts = String(leftVersion).split(".").map(Number);
+  const rightParts = String(rightVersion).split(".").map(Number);
+  const partCount = Math.max(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < partCount; index += 1) {
+    const leftPart = Number.isFinite(leftParts[index]) ? leftParts[index] : 0;
+    const rightPart = Number.isFinite(rightParts[index]) ? rightParts[index] : 0;
+
+    if (leftPart !== rightPart) {
+      return leftPart > rightPart ? 1 : -1;
+    }
+  }
+
+  return 0;
+}
+
+function readLastPlayedVersion() {
+  try {
+    return window.localStorage?.getItem(LAST_PLAYED_VERSION_STORAGE_KEY) ?? "";
+  } catch (error) {
+    console.warn("Could not read last played Train to Bishan version.", error);
+    return "";
+  }
+}
+
+function markCurrentGameVersionPlayed() {
+  try {
+    window.localStorage?.setItem(LAST_PLAYED_VERSION_STORAGE_KEY, getCurrentGameVersion());
+  } catch (error) {
+    console.warn("Could not save last played Train to Bishan version.", error);
+  }
+}
+
+function hasNewChangelogEntries() {
+  const lastPlayedVersion = readLastPlayedVersion();
+  return !lastPlayedVersion || compareVersions(getCurrentGameVersion(), lastPlayedVersion) > 0;
+}
+
 function applyCurrentGameSettings() {
   applyGameSettings(mergeGameSettings(BASE_GAME_SETTINGS, USER_GAME_SETTINGS));
   resetCountdowns();
@@ -492,6 +538,7 @@ const settingsResetButtonEl = document.querySelector("#settingsResetButton");
 const uprightTestButtonEl = document.querySelector("#uprightTestButton");
 const uprightTestStatusEl = document.querySelector("#uprightTestStatus");
 const stationDurationSettingsEl = document.querySelector("#stationDurationSettings");
+const changelogBadgeEl = document.querySelector("#changelogBadge");
 const settingsInputEls = Object.fromEntries(
   [...document.querySelectorAll("[data-setting]")].map((input) => [input.dataset.setting, input]),
 );
@@ -3780,6 +3827,7 @@ function resetState() {
 
 function startWaiting() {
   hideStatusText(true);
+  markCurrentGameVersionPlayed();
   clearEndSound();
   clearAuntieSound();
   clearTrainBreakdownSound();
@@ -4091,6 +4139,7 @@ function render() {
   renderStationSegment();
   renderAuntieEvent();
   renderDemoSkip();
+  renderChangelogBadge();
   renderPhaseCopy(paused, upright);
   renderTimers();
   renderActions();
@@ -4196,6 +4245,14 @@ function renderAuntieEvent() {
 function renderDemoSkip() {
   skipButtonEl.hidden = !DEMO_SKIP_ENABLED || state.showingSettings;
   skipButtonEl.disabled = !canDemoSkip();
+}
+
+function renderChangelogBadge() {
+  if (!changelogBadgeEl) {
+    return;
+  }
+
+  changelogBadgeEl.hidden = !hasNewChangelogEntries();
 }
 
 function renderPhaseCopy(paused, upright) {
